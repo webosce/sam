@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2020 LG Electronics, Inc.
+// Copyright (c) 2012-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ bool LSM::onGetForegroundAppInfo(LSHandle* sh, LSMessage* message, void* context
         if (runningApp->isFirstLaunch())
             Logger::info(getInstance().getClassName(), __FUNCTION__, runningApp->getAppId(), Logger::format("Foreground Time: %lld ms", runningApp->getTimeStamp()));
         newForegroundAppInfo.append(orgForegroundAppInfo[i].duplicate());
-        newForegroundAppIds.push_back(appId);
+        newForegroundAppIds.push_back(std::move(appId));
     }
 
     // set background

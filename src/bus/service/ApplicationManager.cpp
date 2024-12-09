@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2020 LG Electronics, Inc.
+// Copyright (c) 2017-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -260,12 +260,12 @@ void ApplicationManager::launch(LunaTaskPtr lunaTask)
 
     RunningAppPtr runningApp = RunningAppList::getInstance().getByLunaTask(lunaTask, false);
     if (runningApp != nullptr) {
-        PolicyManager::getInstance().relaunch(lunaTask);
+        PolicyManager::getInstance().relaunch(std::move(lunaTask));
         return;
     }
     if (LaunchPointList::getInstance().getByLunaTask(lunaTask) == nullptr) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Cannot find proper launchPoint");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -281,7 +281,7 @@ void ApplicationManager::pause(LunaTaskPtr lunaTask)
     RunningAppPtr runningApp = RunningAppList::getInstance().getByLunaTask(lunaTask);
     if (runningApp == nullptr) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, lunaTask->getId() + " is not running");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     PolicyManager::getInstance().pause(std::move(lunaTask));
@@ -293,12 +293,12 @@ void ApplicationManager::close(LunaTaskPtr lunaTask)
     RunningAppPtr runningApp = RunningAppList::getInstance().getByLunaTask(lunaTask);
     if (runningApp == nullptr) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, lunaTask->getId() + " is not running");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     if (lunaTask->isDevmodeRequest() && !runningApp->getLaunchPoint()->getAppDesc()->isDevmodeApp()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Only Dev app should be closed using /dev category_API");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     PolicyManager::getInstance().close(std::move(lunaTask));
@@ -328,7 +328,7 @@ void ApplicationManager::getAppLifeEvents(LunaTaskPtr lunaTask)
     if (!lunaTask->getRequest().isSubscription()) {
         lunaTask->getResponsePayload().put("subscribed", false);
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "subscription is required");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -346,7 +346,7 @@ void ApplicationManager::getAppLifeStatus(LunaTaskPtr lunaTask)
     if (!lunaTask->getRequest().isSubscription()) {
         lunaTask->getResponsePayload().put("subscribed", false);
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "subscription is required");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -393,7 +393,7 @@ void ApplicationManager::lockApp(LunaTaskPtr lunaTask)
     AppDescriptionPtr appDesc = AppDescriptionList::getInstance().getByAppId(appId);
     if (!appDesc) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, appId + " was not found OR Unsupported Application Type");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -433,7 +433,7 @@ void ApplicationManager::registerApp(LunaTaskPtr lunaTask)
     {
         lunaTask->getResponsePayload().put("returnValue", true);
         lunaTask->getResponsePayload().put("subscribed", false);
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -473,7 +473,7 @@ void ApplicationManager::getAppStatus(LunaTaskPtr lunaTask)
 
     if (appId.empty()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     if (lunaTask->getRequest().isSubscription()) {
@@ -514,14 +514,14 @@ void ApplicationManager::getAppInfo(LunaTaskPtr lunaTask)
     string appId = requestPayload["id"].asString();
     if (appId.empty()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
     AppDescriptionPtr appDesc = AppDescriptionList::getInstance().getByAppId(appId);
     if (!appDesc) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified OR Unsupported Application Type: " + appId);
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -546,18 +546,18 @@ void ApplicationManager::getAppBasePath(LunaTaskPtr lunaTask)
 
     if (appId.empty()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     AppDescriptionPtr appDesc = AppDescriptionList::getInstance().getByAppId(appId);
     if (!appDesc) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified: " + appId);
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     if (lunaTask->getCaller() != appId) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Not allowed. Allow only for the info of calling app itself.");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -573,21 +573,21 @@ void ApplicationManager::addLaunchPoint(LunaTaskPtr lunaTask)
 
     if (lunaTask->getAppId().empty()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "missing required 'id' parameter");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
     AppDescriptionPtr appDesc = AppDescriptionList::getInstance().getByAppId(lunaTask->getAppId());
     if (!appDesc) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Invalid appId specified OR Unsupported Application Type: " + lunaTask->getAppId());
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
     LaunchPointPtr launchPoint = LaunchPointList::getInstance().createBootmarkByAPI(std::move(appDesc), requestPayload);
     if (!launchPoint) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Cannot create bookmark");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -603,13 +603,13 @@ void ApplicationManager::updateLaunchPoint(LunaTaskPtr lunaTask)
     string launchPointId = "";
     if (!JValueUtil::getValue(requestPayload, "launchPointId", launchPointId)) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "launchPointId is empty");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     LaunchPointPtr launchPoint = LaunchPointList::getInstance().getByLaunchPointId(launchPointId);
     if (launchPoint == nullptr) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "cannot find launch point");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 
@@ -624,12 +624,12 @@ void ApplicationManager::removeLaunchPoint(LunaTaskPtr lunaTask)
     LaunchPointPtr launchPoint = LaunchPointList::getInstance().getByLaunchPointId(lunaTask->getLaunchPointId());
     if (launchPoint == nullptr) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "Cannot find launch point");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     if (!launchPoint->isRemovable()) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "This launchPoint cannot be removable");
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
     PolicyManager::getInstance().removeLaunchPoint(std::move(lunaTask));

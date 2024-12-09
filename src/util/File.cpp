@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2020 LG Electronics, Inc.
+// Copyright (c) 2019-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ bool File::concatToFilename(const string originPath, string& returnPath, const s
     size_t pos_dir = originPath.find_last_of("/");
 
     if (string::npos == pos_dir) {
-        filename = originPath;
+        filename = std::move(originPath);
     } else {
         pos_dir = pos_dir + 1;
         dir_path = originPath.substr(0, pos_dir);
@@ -135,15 +135,15 @@ string File::join(const string& a, const string& b)
 {
     string path = "";
 
-    if (a.back() == '/') {
-        if (b.front() == '/') {
+    if (!a.empty() && a.back() == '/') {
+        if (!b.empty() && b.front() == '/') {
             path = a + b.substr(1);
         }
         else {
             path = a + b;
         }
     } else {
-        if (b.front() == '/') {
+        if (!b.empty() && b.front() == '/') {
             path = a + b;
         }
         else {

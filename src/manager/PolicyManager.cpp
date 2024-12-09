@@ -1,6 +1,6 @@
 /* @@@LICENSE
  *
- * Copyright (c) 2024 LG Electronics, Inc.
+ * Copyright (c) 2025 LG Electronics, Inc.
  *
  * Confidential computer software. Valid license from LG required for
  * possession, use or copying. Consistent with FAR 12.211 and 12.212,
@@ -141,7 +141,7 @@ void PolicyManager::removeLaunchPoint(LunaTaskPtr lunaTask)
         case LaunchPointType::LaunchPoint_DEFAULT:
             // We are not sure we have to allow remove of default launch point.
             lunaTask->setSuccessCallback(boost::bind(&PolicyManager::onCloseForRemove, this, boost::placeholders::_1));
-            close(lunaTask);
+            close(std::move(lunaTask));
             return;
 
         case LaunchPointType::LaunchPoint_BOOKMARK:
@@ -182,7 +182,7 @@ void PolicyManager::onCloseForRemove(LunaTaskPtr lunaTask)
         break;
 
     case LaunchPointType::LaunchPoint_BOOKMARK:
-        LaunchPointList::getInstance().remove(launchPoint);
+        LaunchPointList::getInstance().remove(std::move(launchPoint));
         break;
 
     default:

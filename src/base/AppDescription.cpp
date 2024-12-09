@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2020 LG Electronics, Inc.
+// Copyright (c) 2012-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -294,7 +294,7 @@ bool AppDescription::loadAppinfo()
     localizationDirs.push_back(resourcePath);
 
     resourcePath += SAMConf::getInstance().getRegion() + "/";
-    localizationDirs.push_back(resourcePath);
+    localizationDirs.push_back(std::move(resourcePath));
 
     // apply localization (overwrite from low to high)
     for (const auto& localizationDir : localizationDirs) {

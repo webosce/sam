@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2022 LG Electronics, Inc.
+// Copyright (c) 2019-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ void RunningApp::registerApp(LunaTaskPtr lunaTask)
     if (m_isRegistered) {
         lunaTask->setErrCodeAndText(ErrCode_GENERAL, "The app is already registered");
         lunaTask->error(lunaTask);
-        LunaTaskList::getInstance().removeAfterReply(lunaTask);
+        LunaTaskList::getInstance().removeAfterReply(std::move(lunaTask));
         return;
     }
 

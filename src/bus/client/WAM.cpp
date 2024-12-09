@@ -1,4 +1,4 @@
-// Copyright (c) 2012-2021 LG Electronics, Inc.
+// Copyright (c) 2012-2025 LG Electronics, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ void WAM::launch(RunningAppPtr runningApp, LunaTaskPtr lunaTask)
         &token,
         &error
     )) {
-        RunningAppList::getInstance().removeByObject(runningApp);
+        RunningAppList::getInstance().removeByObject(std::move(runningApp));
         lunaTask->setErrCodeAndText(error.error_code, error.message);
         lunaTask->error(lunaTask);
         return;
@@ -236,7 +236,7 @@ void WAM::close(RunningAppPtr runningApp, LunaTaskPtr lunaTask)
 {
     string sender = lunaTask->getCaller();
     if (sender == "com.webos.service.memorymanager") {
-        killApp(runningApp, lunaTask);
+        killApp(runningApp, std::move(lunaTask));
         return;
     }
 
